@@ -2,3 +2,4 @@ dist/
 build/
 nachomines.egg-info/
 nachomines/scripts/__pycache__/
+nachomines/__pycache__/

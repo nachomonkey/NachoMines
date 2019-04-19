@@ -20,7 +20,7 @@ class AutoLoad:
            for File in files:
                if not File.startswith("."):
                    self.names.append(self.remove_extension(File))
-                   self.images.append(pygame.image.load(root + "/" + File))
+                   self.images.append(pygame.image.load(root + os.path.sep + File))
            print(f"{green}Collected {files} from {root}{endC}")
        final = dict(zip(self.names, self.images))
        return final
