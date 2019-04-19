@@ -1,0 +1,10 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Name=NachoMines
+GenericName=NachoMines
+Comment=Minesweeper Game
+Exec=nachomines
+Icon=/usr/share/icons/nachomines.png
+Terminal=false
+Type=Application
+Categories=Game;ArcadeGame;
