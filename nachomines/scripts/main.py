@@ -228,7 +228,7 @@ class Game:
                         self.recalc()
                     if self.lost or self.won:
                         self.__init__(True)
-                if event.key == pygame.K_ESCAPE:
+                if event.key in (pygame.K_ESCAPE, pygame.K_Q):
                     self.exit()
             if not self.playing:
                 self.minesDropDown.events(event)

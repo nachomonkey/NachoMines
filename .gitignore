@@ -1,0 +1,4 @@
+dist/
+build/
+nachomines.egg-info/
+nachomines/scripts/__pycache__/
