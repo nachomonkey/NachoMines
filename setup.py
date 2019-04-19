@@ -1,5 +1,5 @@
 import setuptools, shutil, os
-from nachomines.scripts.main import __version__
+from nachomines import __version__
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
