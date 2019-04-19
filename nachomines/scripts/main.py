@@ -8,13 +8,13 @@ import pygame
 from nachomines.scripts.auto_load import AutoLoad
 from nachomines.scripts.Utils import *
 from nachomines.scripts.button import Drop_Down
+from nachomines import __version__
 from pkg_resources import resource_filename
 
 pygame.init()
 
 gameName = "NachoMines"
 __author__ = "NachoMonkey"
-__version__ = "0.1.2"
 
 caption = f"{gameName} {__version__}"
 
