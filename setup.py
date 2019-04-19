@@ -1,4 +1,5 @@
 import setuptools, shutil, os
+from nachomines.scripts.main import __version__
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -10,7 +11,7 @@ if os.path.exists("/usr/share/icons"):
 
 setuptools.setup(
     name="nachomines",
-    version="0.1",
+    version=__version__,
     author="NachoMonkey",
     description="Simple python minesweeper game using pygame",
     long_description=long_description,

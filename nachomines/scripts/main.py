@@ -14,7 +14,7 @@ pygame.init()
 
 gameName = "NachoMines"
 __author__ = "NachoMonkey"
-__version__ = "0.1"
+__version__ = "0.1.2"
 
 caption = f"{gameName} {__version__}"
 
