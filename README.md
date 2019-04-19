@@ -1,11 +1,11 @@
 # NachoMines
 *A simple python-made minesweeper game using pygame*
-##Requires
+## Requires
 * Python 3.6 or greater
 * pygame
 
 ## Installation
-###Linux
+### Linux
 
 **Using Pip**
 
@@ -17,7 +17,7 @@
 	cd NachoMines
 	sudo python3 setup.py install
 
-##Launching the game
+## Launching the game
 
 The **setup.py** script installs the "nachomines" python module, a "nachomines" console script, and a .desktop file on linux machines.
 
@@ -27,7 +27,9 @@ The **setup.py** script installs the "nachomines" python module, a "nachomines" 
 **Using the console script**
 
 	nachomines
-**Using the *.desktop* file **
+
+**Using the .desktop file**
+
 An application by the name "NachoMines" should be found in the "Games" section of your application menu
 
 ## Gameplay and Controls
@@ -40,3 +42,6 @@ An application by the name "NachoMines" should be found in the "Games" section o
 ### Game
 Hover over the blocks using the cursor. Right-click to flag a block.
 Left-click to show an empty square and the empty squares near it.
+
+# License
+Uses the MIT License. See the LICENSE file for further detail.
