@@ -226,6 +226,12 @@ class Game:
                 self.Display, self.scaleY(50), "Press Enter to Continue",
                 color = (255, 255, 0), font = "monospace", bold = True)
 
+        Adv_Fonts((self.Display.get_width() // 2, self.Display.get_height() - self.scaleY(100)),
+                self.Display, self.scaleY(20), "Press <R> to regenerate board",
+                color = (255, 255, 0), font = "monospace", bold = True)
+
+
+
     def draw_game(self):
         for b in self.blocks:
             b.draw(self.Display)
@@ -257,6 +263,10 @@ class Game:
                         self.__init__(True)
                 if event.key in (pygame.K_ESCAPE, pygame.K_q):
                     self.exit()
+                if event.key == pygame.K_r and self.playing:
+                    self.__init__(True)
+                    self.playing = True
+                    self.recalc()
             if not self.playing:
                 self.minesDropDown.events(event)
                 self.subDropDown.events(event)
