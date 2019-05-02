@@ -26,6 +26,7 @@ def gray(v):
 
 gridColor = gray(0)
 gridColorDark = (175, 125, 0)
+gridColorNacho = (255, 255, 0)
 
 blockColor = gray(150)
 blockColorHover = gray(130)
@@ -108,34 +109,48 @@ class Game:
         self.scaleY = self.Scaling.scale_singleY
 
         loader = AutoLoad()
-        self.images = self.Scaling.scale_images(loader.Start_AutoLoad())
+        self.old_images = self.Scaling.scale_images(loader.Start_AutoLoad())
+        self.images = copy.copy(self.old_images)
 
         self.subDropDown = Drop_Down(self.scale((100, 600)), list(range(5, 19)),
                 self.Display, color2 = gray(100))
         self.minesDropDown = Drop_Down(self.scale((200, 600)), list(range(5, 76, 5)),
                 self.Display, color2 = gray(100))
-        self.themeDropDown = Drop_Down(self.scale((300, 600)), ["Light", "Dark"],
+        self.themeDropDown = Drop_Down(self.scale((300, 600)), ["Light", "Dark", "Nacho"],
                 self.Display, color2 = gray(100))
         self.subDropDown.set_status(10)
         self.minesDropDown.set_status(25)
         self.themeDropDown.set_status("Dark")
-        self.dark_theme = True
 
     def recalc(self):
-        self.dark_theme = self.themeDropDown.get_status() == "Dark"
+        self.theme = self.themeDropDown.get_status()
         self.GridSub = self.subDropDown.get_status()
         self.BlockAmount = self.GridSub ** 2
         self.Mines = int(self.minesDropDown.get_status() / 100 * self.BlockAmount)
         self.BlockSize = self.Display.get_width() // self.GridSub
+        f_name = "flag"
+        m_name = "mine"
+        if self.theme == "Nacho":
+            f_name = "spicy_alert"
+            m_name = "jalapeno"
 
-        self.images["flag"] = pygame.transform.smoothscale(self.images["flag"],
+        self.images[f_name] = pygame.transform.smoothscale(self.old_images[f_name],
                 (self.BlockSize, self.BlockSize))
-        self.images["mine"] = pygame.transform.smoothscale(self.images["mine"],
+        self.images[m_name] = pygame.transform.smoothscale(self.old_images[m_name],
                 (self.BlockSize, self.BlockSize))
+        if self.theme == "Nacho":
+            self.images["chip1"] = pygame.transform.smoothscale(self.old_images["chip1"],
+                    (self.BlockSize, self.BlockSize))
+            self.images["chip2"] = pygame.transform.smoothscale(self.old_images["chip2"],
+                    (self.BlockSize, self.BlockSize))
         self.blocks = []
         self.gridLines = getGridLines(self.GridSub, self.GridSub, self.BlockSize)
         for r in getGridRects(self.GridSub, self.GridSub, self.BlockSize):
-            self.blocks.append(Block(r, self.images["flag"], self.images["mine"], self.dark_theme))
+            chip = None
+            if self.theme == "Nacho":
+                name = random.choice(["chip1", "chip2"])
+                chip = pygame.transform.flip(self.images[name], random.randint(0, 1), random.randint(0, 1))
+            self.blocks.append(Block(r, self.images[f_name], self.images[m_name], chip, self.theme))
         self.flags = 0
 
     def main(self):
@@ -195,8 +210,15 @@ class Game:
         return border
 
     def drawGrid(self, grid):
+        color = gridColorDark
+        if self.theme == "Light":
+            color = gridColor
+        if self.theme == "Dark":
+            color = gridColorDark
+        if self.theme == "Nacho":
+            color = gridColorNacho
         for g in grid:
-            pygame.draw.aaline(self.Display, [gridColor, gridColorDark][self.dark_theme], g[0], g[1], 2)
+            pygame.draw.aaline(self.Display, color, g[0], g[1], 2)
 
     def draw(self):
         if self.playing:
@@ -239,16 +261,21 @@ class Game:
         text = ""
         color = (0, 0, 0)
         if self.won or self.lost:
+            mine = "Mine"
+            size = 75
+            if self.theme == "Nacho":
+                mine = "Jalapeño"
+                size = 50
             rect = pygame.Rect((0, 0), (self.Display.get_width() // 1.25,
                 self.Display.get_height() // 3))
             rect.center = self.Display.get_rect().center
             pygame.draw.rect(self.Display, gray(0), rect.move(2, 4))
             pygame.draw.rect(self.Display, gray(45), rect)
-            text = ["You Hit A Mine!!", "You Won!!!"][self.won]
+            text = [f"You Hit A {mine}!!", "You Won!!!"][self.won]
             color = [(255, 0, 0), (0, 200, 0)][self.won]
-        Adv_Fonts((self.Display.get_width() // 2, self.Display.get_height() // 2),
-                self.Display, self.scaleY(75), text, color = color,
-                font = "monospace", bold = True, shadow = True)
+            Adv_Fonts((self.Display.get_width() // 2, self.Display.get_height() // 2),
+                    self.Display, self.scaleY(size), text, color = color,
+                    font = "monospace", bold = True, shadow = True)
 
     def events(self):
         for event in pygame.event.get():
@@ -307,9 +334,11 @@ class Game:
         Clock.tick(FPS)
 
 class Block:
-    def __init__(self, rect, flag, mine, dark):
+    def __init__(self, rect, flag, mine, chip, theme):
         self.rect = rect
-        self.dark = dark
+        self.chip = chip
+        self.theme = theme
+        self.dark = False if theme == "Light" else True
         self.statusL = 0                           # 0 = normal, 1 = hover, 2 = click, 3 = explored, 4 = HIT MINE
         self.statusR = 0
         self.hasMine = 0
@@ -320,12 +349,17 @@ class Block:
         self.upStatR = False
         self.flagged = False
         self.updated = False
+        self.clicked = False
         self.surrounding = 0
         self.flag = flag
         self.mine = mine
 
     def draw(self, display):
         pygame.draw.rect(display, blockColors[self.dark][self.statusL], self.rect)
+        if self.chip and not (self.clicked or self.explored):
+            cr = self.chip.get_rect()
+            cr.center = self.rect.center
+            display.blit(self.chip, cr)
         if self.flagged:
             fr = self.flag.get_rect()
             fr.center = self.rect.center
@@ -341,6 +375,8 @@ class Block:
                     font = "monospace", color = theColors[self.surrounding])
 
     def update(self, pos, click, left):            # Left: 0 for left click, 1 for right click
+        if self.upStatL:
+            self.clicked = True
         if left == 0:
             self.upStatL = False
         if left == 1:
