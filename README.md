@@ -56,4 +56,9 @@ Left-click to show an empty square and the empty squares near it.
 Win by flagging all of the mines.
 
 # License
-Uses the MIT License. See the LICENSE file for further detail.
+Uses the MIT License. See the
+
+[LICENSE]: https://github.com/nachomonkey/NachoMines/blob/master/LICENSE	"LICENSE"
+
+ LICENSE file for further detail.
+

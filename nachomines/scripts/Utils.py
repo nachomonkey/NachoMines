@@ -4,7 +4,6 @@ import os
 
 pygame.init()
 
-
 red = "\033[91m"
 blue = "\033[94m"
 green = "\033[92m"
