@@ -13,18 +13,6 @@ if sys.platform == "linux":
 
 setuptools.setup(
     version=__version__,
-<<<<<<< HEAD
-    author="NachoMonkey",
-    description="Simple python minesweeper game using pygame",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/nachomonkey/NachoMines",
-    packages=["nachomines", "nachomines.scripts"],
     package_data={"nachomines" : ["*.png", fixPath("resources/images/bitmap/*"), fixPath("resources/sounds/*")]},
-    install_requires=["setuptools", "pygame"],
-    zip_safe=False,
-=======
-    package_data={"nachomines": ["*.png", fixPath("resources/images/bitmap/*")]},
->>>>>>> 353db45af5fa5625a3ba8535c8b848581fec8f1f
     python_requires=">=3.6",
 )
