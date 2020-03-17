@@ -39,10 +39,12 @@ class Drop_Down:
             for line in self.lines:
                 self.pygame.draw.line(self.surface, (0, 0, 0), line[0], line[1])
             for text in self.options:
-                self.text(self.surface, *self.rects[self.options.index(text)].center, self.text_size, (0, 0, 0), text, anchor = "center")
+                self.text(self.surface, *self.rects[self.options.index(text)].move(1, 1).center, self.text_size, (0, 0, 0), text, anchor = "center")
+                self.text(self.surface, *self.rects[self.options.index(text)].center, self.text_size, (150, 150, 150), text, anchor = "center")
         if self.mode == 0: 
             self.pygame.draw.rect(self.surface, self.color2, self.rects[0])
-            self.text(self.surface, *self.rects[0].center, self.text_size, (0, 0, 0), self.options[self.index], anchor = "center")
+            self.text(self.surface, *self.rects[0].move(1, 1).center, self.text_size, (0, 0, 0), self.options[self.index], anchor = "center")
+            self.text(self.surface, *self.rects[0].center, self.text_size, (150, 150, 150), self.options[self.index], anchor = "center")
 
     def get_status(self):
         return self.options[self.index]
@@ -53,11 +55,12 @@ class Drop_Down:
     def events(self, event):
         mouse_rect = self.pygame.Rect(*self.pygame.mouse.get_pos(), 1, 1)
         if event.type == self.pygame.MOUSEBUTTONDOWN:
-            if self.mode == 0:
-                if self.rects[0].colliderect(mouse_rect):
-                    self.mode = 1
-            elif self.mode == 1:
-                for rect in self.rects:
-                    if rect.colliderect(mouse_rect):
-                        self.mode = 0
-                        self.index = self.rects.index(rect)
+            if event.button == 1:
+                if self.mode == 0:
+                    if self.rects[0].colliderect(mouse_rect):
+                        self.mode = 1
+                elif self.mode == 1:
+                    for rect in self.rects:
+                        if rect.colliderect(mouse_rect):
+                            self.index = self.rects.index(rect)
+                    self.mode = 0

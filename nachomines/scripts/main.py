@@ -10,16 +10,21 @@ from nachomines.scripts.Utils import *
 from nachomines.scripts.button import Drop_Down
 from nachomines import __version__
 from pkg_resources import resource_filename
+from pygame.mixer import Sound
 
 pygame.init()
 
 gameName = "NachoMines"
 __author__ = "NachoMonkey"
 
-caption = f"{gameName} {__version__}"
+caption = f"{gameName} v{__version__}"
+
+margin = 50
 
 DefaultDisplaySize = (1080, 1080)
 
+def playSound(filename):
+    Sound(fixPath(resource_filename("nachomines", "resources/sounds/" + filename))).play()
 
 def gray(v):
     return (v, v, v)
@@ -93,11 +98,13 @@ class Game:
         self.lost = False
         self.playing = False
         self.started = False
+        self.mseg_alpha = 255
+        self.mseg = None
         if again:
             return
-        self.width, self.height = self.size = getSquareDisplay(Info.current_w,
-                Info.current_h)
-        self.Display = pygame.display.set_mode(self.size, pygame.FULLSCREEN, 32)
+        self.width, self.height = self.size = getSquareDisplay(Info.current_w - margin,
+                Info.current_h - margin)
+        self.Display = pygame.display.set_mode(self.size)
         pygame.display.set_caption(caption)
 
         icon = pygame.image.load(resource_filename("nachomines", "icon.png"))
@@ -112,15 +119,18 @@ class Game:
         self.old_images = self.Scaling.scale_images(loader.Start_AutoLoad())
         self.images = copy.copy(self.old_images)
 
-        self.subDropDown = Drop_Down(self.scale((100, 600)), list(range(5, 19)),
+        self.subDropDown = Drop_Down(self.scale((self.width / 2 - 238, 600)), list(range(5, 19)),
                 self.Display, color2 = gray(100))
-        self.minesDropDown = Drop_Down(self.scale((200, 600)), list(range(5, 76, 5)),
+        self.minesDropDown = Drop_Down(self.scale((self.width / 2 - 38, 600)), list(range(5, 76, 5)),
                 self.Display, color2 = gray(100))
-        self.themeDropDown = Drop_Down(self.scale((300, 600)), ["Light", "Dark", "Nacho"],
+        self.themeDropDown = Drop_Down(self.scale((self.width / 2 + 162, 600)), ["Light", "Dark", "Nacho"],
                 self.Display, color2 = gray(100))
         self.subDropDown.set_status(10)
         self.minesDropDown.set_status(25)
         self.themeDropDown.set_status("Dark")
+
+        self.time_passed = 0
+        self.event_time = 0
 
     def recalc(self):
         self.theme = self.themeDropDown.get_status()
@@ -232,26 +242,21 @@ class Game:
         self.minesDropDown.draw()
         self.themeDropDown.draw()
 
-        Adv_Fonts(self.scale((90, 580)),
+        Adv_Fonts(self.subDropDown.rects[0].midtop,
         self.Display, self.scaleY(15), "Grid Subdivisions",
-        color = (255, 255, 0), font = "freesansbold", bold = True, anchor = "topleft")
+        color = (255, 255, 0), font = "freesansbold", bold = True, anchor = "midbottom")
         
-        Adv_Fonts(self.scale((200, 580)),
+        Adv_Fonts(self.minesDropDown.rects[0].midtop,
         self.Display, self.scaleY(15), "Mine Density",
-        color = (255, 255, 0), font = "freesansbold", bold = True, anchor = "topleft")
+        color = (255, 255, 0), font = "freesansbold", bold = True, anchor = "midbottom")
 
-        Adv_Fonts(self.scale((300 + self.scaleX(75 / 2), 580)),
+        Adv_Fonts(self.themeDropDown.rects[0].midtop,
         self.Display, self.scaleY(15), "Theme",
-        color = (255, 255, 0), font = "freesansbold", bold = True, anchor = "midtop")
-
-        Adv_Fonts((self.Display.get_width() // 2, self.Display.get_height() // 2),
-                self.Display, self.scaleY(50), "Press Enter to Continue",
-                color = (255, 255, 0), font = "monospace", bold = True)
+        color = (255, 255, 0), font = "freesansbold", bold = True, anchor = "midbottom")
 
         Adv_Fonts((self.Display.get_width() // 2, self.Display.get_height() - self.scaleY(100)),
-                self.Display, self.scaleY(20), "Press <R> to regenerate board",
-                color = (255, 255, 0), font = "monospace", bold = True)
-
+                self.Display, self.scaleY(20), "Press <R> to restart",
+                color = (255, 255, 0), font = "monospace", bold = True, shadow=True)
 
 
     def draw_game(self):
@@ -261,21 +266,26 @@ class Game:
         text = ""
         color = (0, 0, 0)
         if self.won or self.lost:
-            mine = "Mine"
-            size = 75
-            if self.theme == "Nacho":
-                mine = "Jalapeño"
-                size = 50
-            rect = pygame.Rect((0, 0), (self.Display.get_width() // 1.25,
-                self.Display.get_height() // 3))
+            if not self.mseg:
+                self.mseg = self.Display.copy()
+            mseg_surf = self.mseg.copy()
+            rect = pygame.Rect((0, 0), (self.Display.get_width() // 1.75,
+                self.Display.get_height() // 4))
             rect.center = self.Display.get_rect().center
-            pygame.draw.rect(self.Display, gray(0), rect.move(2, 4))
-            pygame.draw.rect(self.Display, gray(45), rect)
-            text = [f"You Hit A {mine}!!", "You Won!!!"][self.won]
+            pygame.draw.rect(mseg_surf, gray(0), rect.move(2, 4))
+            pygame.draw.rect(mseg_surf, gray(45), rect)
             color = [(255, 0, 0), (0, 200, 0)][self.won]
-            Adv_Fonts((self.Display.get_width() // 2, self.Display.get_height() // 2),
-                    self.Display, self.scaleY(size), text, color = color,
-                    font = "monospace", bold = True, shadow = True)
+            img = self.images["you_lost" if self.lost else "mines_cleared"]
+            r = img.get_rect()
+            r.center = rect.center
+            mseg_surf.blit(img, r)
+            mseg_surf.set_alpha(self.mseg_alpha)
+            self.Display.blit(mseg_surf, (0, 0))
+            self.event_time -= self.time_passed
+            if self.event_time < 0 and self.mseg_alpha > 0:
+                self.mseg_alpha -= 150 * self.time_passed
+            if self.mseg_alpha < 0:
+                self.mseg_alpha = 0
 
     def events(self):
         for event in pygame.event.get():
@@ -316,11 +326,18 @@ class Game:
                                 self.generateBoard(pos, b)
                             else:
                                 if not b.hasMine:
+                                    playSound("click.wav")
                                     self.explore(b)
                                 else:
                                     b.statusL = 4
                                     self.lost = True
+                                    self.event_time = 2
+                                    playSound("boom.wav")
                         if b.upStatR and self.started and self.flags < self.Mines:
+                            if b.flagged:
+                                playSound("removeFlag.wav")
+                            if not b.flagged:
+                                playSound("addFlag.wav")
                             b.flagged = not b.flagged
                     if b.hasMine:
                         mines += 1
@@ -330,8 +347,9 @@ class Game:
                         mines += 2
             if mines == 0 and self.started:
                 self.won = True
+                self.event_time = 2
         pygame.display.update()
-        Clock.tick(FPS)
+        self.time_passed = Clock.tick(FPS) / 1000
 
 class Block:
     def __init__(self, rect, flag, mine, chip, theme):
@@ -407,5 +425,8 @@ class Block:
             self.statusR = stat
 
 def run():
+    print("\n--NACHOMONKEY--")
+    print("   presents")
+    print(f"NachoMines v{__version__} \n")
     g = Game()
     g.main()

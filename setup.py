@@ -20,7 +20,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/nachomonkey/NachoMines",
     packages=["nachomines", "nachomines.scripts"],
-    package_data={"nachomines" : ["*.png", fixPath("resources/images/bitmap/*")]},
+    package_data={"nachomines" : ["*.png", fixPath("resources/images/bitmap/*"), fixPath("resources/sounds/*")]},
     install_requires=["setuptools", "pygame"],
     zip_safe=False,
     python_requires=">=3.6",
