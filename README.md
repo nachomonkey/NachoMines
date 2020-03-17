@@ -6,40 +6,28 @@
 * Monospace font (recommended)
 
 ## Installation
-### Linux
-
-**Using Pip**
 
 ```bash
-sudo pip3 install git+https://github.com/nachomonkey/NachoMines
+pip3 install nachomines
 ```
-
-**Using Git**
+or
 
 ```bash
 git clone https://github.com/nachomonkey/NachoMines
-cd NachoMines
-sudo python3 setup.py install
+cd nachomines
+python3 setup.py install
 ```
 
 ## Launching the game
 
 The **setup.py** script installs the "nachomines" python module, a "nachomines" console script, and a .desktop file on linux machines.
 
-**Using Python**
-
+**To launch on Windows or Linux, run:**
 ```bash
 python3 -m nachomines
 ```
-**Using the console script**
 
-```bash
-nachomines
-```
-
-**Using the .desktop file**
-
-An application by the name "NachoMines" should be found in the "Games" section of your application menu
+On linux, an application by the name "NachoMines" should be found in the "Games" section of your application menu
 
 ## Gameplay and Controls
 * Press <**Esc**> or <**Q**> to exit
