@@ -47,7 +47,7 @@ An application by the name "NachoMines" should be found in the "Games" section o
 
 * The "Grid Subdivisions" drop-down menu selects the size of the game board
 * The "Mine Density" drop-down menu controls the chance in percentage of a square containing a mine.
-* The "Theme" drop-down menu decides if you want a light or dark color theme during gameplay.
+* The "Theme" drop-down menu decides if you want a light, dark, or **nacho** theme during gameplay.
 
 ### Game
 Hover over the blocks using the cursor. Right-click to flag a block.
@@ -56,9 +56,13 @@ Left-click to show an empty square and the empty squares near it.
 Win by flagging all of the mines.
 
 # License
+<<<<<<< HEAD
 Uses the MIT License. See the
 
 [LICENSE]: https://github.com/nachomonkey/NachoMines/blob/master/LICENSE	"LICENSE"
 
  LICENSE file for further detail.
 
+=======
+Uses the MIT License. See the [LICENSE file](https://github.com/nachomonkey/NachoMines/blob/master/LICENSE) for further detail.
+>>>>>>> ff5cf77184a66879df6a88943ef6ab6de7db8883
