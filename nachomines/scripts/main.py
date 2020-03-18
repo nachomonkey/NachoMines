@@ -131,6 +131,7 @@ class Game:
 
         self.time_passed = 0
         self.event_time = 0
+        self.dirty_rects = []
 
     def recalc(self):
         self.theme = self.themeDropDown.get_status()
@@ -160,7 +161,7 @@ class Game:
             if self.theme == "Nacho":
                 name = random.choice(["chip1", "chip2"])
                 chip = pygame.transform.flip(self.images[name], random.randint(0, 1), random.randint(0, 1))
-            self.blocks.append(Block(r, self.images[f_name], self.images[m_name], chip, self.theme))
+            self.blocks.append(Block(r, self.images[f_name], self.images[m_name], chip, self.theme, self.dirty_rects))
         self.flags = 0
 
     def main(self):
@@ -202,12 +203,14 @@ class Game:
         if not block.hasMine:
             block.statusL = 3
             block.flagged = False
+            block.is_dirty = True
         for b in self.getBordering(block):
             if not b.hasMine:
                 b.statusL = 3
                 block.flagged = False
                 b.flagged = False
                 b.explored += 1
+                b.is_dirty = True
             if b.surrounding == 0 and b.explored < 2 and not b.hasMine:
                 self.explore(b)
 
@@ -257,6 +260,7 @@ class Game:
         Adv_Fonts((self.Display.get_width() // 2, self.Display.get_height() - self.scaleY(100)),
                 self.Display, self.scaleY(20), "Press <R> to restart",
                 color = (255, 255, 0), font = "monospace", bold = True, shadow=True)
+        pygame.display.update()
 
 
     def draw_game(self):
@@ -282,6 +286,7 @@ class Game:
             mseg_surf.set_alpha(self.mseg_alpha)
             self.Display.blit(mseg_surf, (0, 0))
             self.event_time -= self.time_passed
+            self.dirty_rects.append(rect.inflate(50, 50))
             if self.event_time < 0 and self.mseg_alpha > 0:
                 self.mseg_alpha -= 150 * self.time_passed
             if self.mseg_alpha < 0:
@@ -324,6 +329,7 @@ class Game:
                         if b.upStatL and not b.flagged:
                             if not self.started:
                                 self.generateBoard(pos, b)
+                                pygame.display.update()
                             else:
                                 if not b.hasMine:
                                     playSound("click.wav")
@@ -346,13 +352,15 @@ class Game:
                     if b.flagged and not b.hasMine:
                         mines += 2
             if mines == 0 and self.started:
+                playSound("success.wav")
                 self.won = True
                 self.event_time = 2
-        pygame.display.update()
+        pygame.display.update(self.dirty_rects)
+        self.dirty_rects.clear()
         self.time_passed = Clock.tick(FPS) / 1000
 
 class Block:
-    def __init__(self, rect, flag, mine, chip, theme):
+    def __init__(self, rect, flag, mine, chip, theme, dirty_rects):
         self.rect = rect
         self.chip = chip
         self.theme = theme
@@ -371,8 +379,15 @@ class Block:
         self.surrounding = 0
         self.flag = flag
         self.mine = mine
+        self.dirty_rects = dirty_rects
+        self.is_dirty = True
+        self.last_hover = False
+        self.last_click = False
 
     def draw(self, display):
+        if self.is_dirty:
+            self.is_dirty = False
+            self.dirty_rects.append(self.rect)
         pygame.draw.rect(display, blockColors[self.dark][self.statusL], self.rect)
         if self.chip and not (self.clicked or self.explored):
             cr = self.chip.get_rect()
@@ -386,6 +401,7 @@ class Block:
             mr = self.mine.get_rect()
             mr.center = self.rect.center
             display.blit(self.mine, mr)
+            self.dirty_rects.append(self.rect)
         if self.statusL == 3 and self.surrounding != 0 and not self.hasMine:
             Adv_Fonts(self.rect.move(0, 2).center, display, self.rect.h, self.surrounding,
                     font = "monospace", color=(0, 0, 0))
@@ -401,9 +417,15 @@ class Block:
             self.upStatR = False
         stat = copy.copy([self.statusL, self.statusR])[left]
         c = copy.copy([self.clickL, self.clickR])[left]
-        coll = False
+        coll = self.rect.collidepoint(pos)
+        if self.last_hover != coll:
+            self.is_dirty = True
+        self.last_hover = coll
+        if self.last_click != click and coll:
+            self.is_dirty = True
+        self.last_click = click
+
         if self.updated:
-            coll = self.rect.collidepoint(pos)
             if not coll:
                 stat = 0
             else:
@@ -413,6 +435,8 @@ class Block:
                     stat = 1
         else:
             self.updated = True
+        sl = self.statusL
+        sr = self.statusR
         if left == 0:
             if not click and self.clickL and coll and self.statusL:
                 self.upStatL = True
@@ -428,5 +452,8 @@ def run():
     print("\n--NACHOMONKEY--")
     print("   presents")
     print(f"NachoMines v{__version__} \n")
-    g = Game()
-    g.main()
+    try:
+        g = Game()
+        g.main()
+    except KeyboardInterrupt:
+        print()

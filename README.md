@@ -43,5 +43,9 @@ Left-click to show an empty square and the empty squares near it.
 
 Win by flagging all of the mines.
 
+# Credits
+
+The success sound was a modified version of a [sound](https://freesound.org/people/kagateni/sounds/404360/) by kagateni on freesound.org
+
 # License
 Uses the MIT License. See the [LICENSE file](https://github.com/nachomonkey/NachoMines/blob/master/LICENSE) for further detail.
