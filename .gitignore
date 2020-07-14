@@ -3,3 +3,4 @@ build/
 nachomines.egg-info/
 nachomines/scripts/__pycache__/
 nachomines/__pycache__/
+PACKAGE_AND_UPLOAD.sh
