@@ -63,23 +63,33 @@ def stereo_pan_normal(x, width):
     left = 1 - right
     return (left, right)
 
-def Adv_Fonts(pos, display, size, text, font = "Sans", color = (0, 0, 0),  italic = False, bold = False, AA = True, underline = False, anchor = "center", render = True, shadow = False, shadowDistance = 2):
-    rfont = pygame.font.SysFont(font, size)
-    rfont.set_italic(italic)
-    rfont.set_bold(bold)
-    rfont.set_underline(underline)
+FONT_CACHE = {}
+MAX_FONTS = 30
+
+def font_checksum(size, font, italic, bold, underline):
+    return str(size) + font + str(italic) + str(bold) + str(underline)
+
+def Adv_Fonts(pos, display, size, text, font="Sans", color=(0, 0, 0),  italic=False, bold=False, AA=True, underline=False, anchor="center", render=True, shadow=False, shadowDistance=2):
+    if len(FONT_CACHE) > MAX_FONTS:
+        FONT_CACHE.clear()
+    font = font.lower()
+    checksum = font_checksum(size, font, italic, bold, underline)
+    if checksum in FONT_CACHE:
+        rfont = FONT_CACHE[checksum]
+    else:
+        rfont = pygame.font.SysFont(font, size)
+        rfont.set_italic(italic)
+        rfont.set_bold(bold)
+        rfont.set_underline(underline)
+        FONT_CACHE[checksum] = rfont
     Text = rfont.render(str(text), AA, color)
     TextRect = Text.get_rect()
-    exec("TextRect.%s = pos" % anchor)
+    setattr(TextRect, anchor, pos)
     if shadow:
-        font2 = pygame.font.SysFont(font, size)
-        font2.set_italic(italic)
-        font2.set_bold(bold)
-        font2.set_underline(underline)
-        Text2 = font2.render(str(text), AA, (0, 0, 0))
+        Text2 = rfont.render(str(text), AA, (0, 0, 0))
         TextRect2 = Text2.get_rect()
         Pos2 = (pos[0] + shadowDistance, pos[1] + shadowDistance)
-        exec("TextRect2.%s = Pos2" % anchor)
+        setattr(TextRect2, anchor, Pos2)
     if render:
         if shadow:
             display.blit(Text2, TextRect2)
@@ -87,7 +97,7 @@ def Adv_Fonts(pos, display, size, text, font = "Sans", color = (0, 0, 0),  itali
     return (Text, TextRect)
 
 class Scaling:
-    def __init__(self, DisplaySize, default = (1920, 1080)):
+    def __init__(self, DisplaySize, default=(1920, 1080)):
         self.DisplaySize = DisplaySize
         self.default = default
 

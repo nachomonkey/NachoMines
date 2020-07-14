@@ -4,6 +4,9 @@ import sys
 import time
 import copy
 import random
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+
 import pygame
 from nachomines.scripts.auto_load import AutoLoad
 from nachomines.scripts.Utils import *
@@ -17,7 +20,7 @@ pygame.init()
 gameName = "NachoMines"
 __author__ = "NachoMonkey"
 
-caption = f"{gameName} v{__version__}"
+caption = f"{gameName}"
 
 margin = 50
 
@@ -247,19 +250,23 @@ class Game:
 
         Adv_Fonts(self.subDropDown.rects[0].midtop,
         self.Display, self.scaleY(15), "Grid Subdivisions",
-        color = (255, 255, 0), font = "freesansbold", bold = True, anchor = "midbottom")
+        color = (255, 255, 0), font="freesansbold", bold=True, anchor="midbottom")
         
         Adv_Fonts(self.minesDropDown.rects[0].midtop,
         self.Display, self.scaleY(15), "Mine Density",
-        color = (255, 255, 0), font = "freesansbold", bold = True, anchor = "midbottom")
+        color = (255, 255, 0), font="freesansbold", bold=True, anchor="midbottom")
 
         Adv_Fonts(self.themeDropDown.rects[0].midtop,
         self.Display, self.scaleY(15), "Theme",
-        color = (255, 255, 0), font = "freesansbold", bold = True, anchor = "midbottom")
+        color = (255, 255, 0), font="freesansbold", bold=True, anchor="midbottom")
+
+        Adv_Fonts((round(self.Display.get_width() * (9/10)), round(self.Display.get_height() * (9/10))),
+                self.Display, self.scaleY(14), f"v{__version__}",
+                color=(255, 255, 255), font="monospace", anchor="bottomright")
 
         Adv_Fonts((self.Display.get_width() // 2, self.Display.get_height() - self.scaleY(100)),
                 self.Display, self.scaleY(20), "Press <R> to restart",
-                color = (255, 255, 0), font = "monospace", bold = True, shadow=True)
+                color=(255, 255, 0), font="monospace", bold=True, shadow=True)
         pygame.display.update()
 
 
@@ -290,12 +297,17 @@ class Game:
             if self.event_time < 0 and self.mseg_alpha > 0:
                 self.mseg_alpha -= 150 * self.time_passed
             if self.mseg_alpha < 0:
+                self.__init__(True)
                 self.mseg_alpha = 0
 
     def events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    if self.lost or self.won:
+                        self.__init__(True)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     if not self.playing:
@@ -449,7 +461,7 @@ class Block:
             self.statusR = stat
 
 def run():
-    print("\n--NACHOMONKEY--")
+    print("\n--NachoMonkey--")
     print("   presents")
     print(f"NachoMines v{__version__} \n")
     try:
