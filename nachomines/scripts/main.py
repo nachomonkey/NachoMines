@@ -5,7 +5,9 @@ import time
 import copy
 import random
 import os
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+
+os.environ["SDL_VIDEO_WINDOW_POS"] = "0, 0"
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 
 import pygame
 from nachomines.scripts.auto_load import AutoLoad
@@ -107,7 +109,7 @@ class Game:
             return
         self.width, self.height = self.size = getSquareDisplay(Info.current_w - margin,
                 Info.current_h - margin)
-        self.Display = pygame.display.set_mode(self.size)
+        self.Display = pygame.display.set_mode(self.size, pygame.NOFRAME | pygame.HWACCEL)
         pygame.display.set_caption(caption)
 
         icon = pygame.image.load(resource_filename("nachomines", "icon.png"))
@@ -332,37 +334,37 @@ class Game:
             click = pygame.mouse.get_pressed()
             mines = 0
             self.flags = 0
-            if True:
-                for b in self.blocks:
-                    self.flags += b.flagged
-                    if b.statusL != 3:
-                        b.update(pos, click[0], 0)
-                        b.update(pos, click[2], 1)
-                        if b.upStatL and not b.flagged:
-                            if not self.started:
-                                self.generateBoard(pos, b)
-                                pygame.display.update()
+            for b in self.blocks:
+                self.flags += b.flagged
+                if b.statusL != 3:
+                    b.update(pos, click[0], 0)
+                    b.update(pos, click[2], 1)
+                    if b.upStatL and not b.flagged:
+                        if not self.started:
+                            playSound("click.wav")
+                            self.generateBoard(pos, b)
+                            pygame.display.update()
+                        else:
+                            if not b.hasMine:
+                                playSound("click.wav")
+                                self.explore(b)
                             else:
-                                if not b.hasMine:
-                                    playSound("click.wav")
-                                    self.explore(b)
-                                else:
-                                    b.statusL = 4
-                                    self.lost = True
-                                    self.event_time = 2
-                                    playSound("boom.wav")
-                        if b.upStatR and self.started and self.flags < self.Mines:
-                            if b.flagged:
-                                playSound("removeFlag.wav")
-                            if not b.flagged:
-                                playSound("addFlag.wav")
-                            b.flagged = not b.flagged
-                    if b.hasMine:
-                        mines += 1
-                    if b.flagged and b.hasMine:
-                        mines -= 1
-                    if b.flagged and not b.hasMine:
-                        mines += 2
+                                b.statusL = 4
+                                self.lost = True
+                                self.event_time = 2
+                                playSound("boom.wav")
+                    if b.upStatR and self.started and self.flags < self.Mines:
+                        if b.flagged:
+                            playSound("removeFlag.wav")
+                        if not b.flagged:
+                            playSound("addFlag.wav")
+                        b.flagged = not b.flagged
+                if b.hasMine:
+                    mines += 1
+                if b.flagged and b.hasMine:
+                    mines -= 1
+                if b.flagged and not b.hasMine:
+                    mines += 2
             if mines == 0 and self.started:
                 playSound("success.wav")
                 self.won = True
@@ -416,9 +418,9 @@ class Block:
             self.dirty_rects.append(self.rect)
         if self.statusL == 3 and self.surrounding != 0 and not self.hasMine:
             Adv_Fonts(self.rect.move(0, 2).center, display, self.rect.h, self.surrounding,
-                    font = "monospace", color=(0, 0, 0))
+                    font="georgia", color=(0, 0, 0))
             Adv_Fonts(self.rect.center, display, self.rect.h, self.surrounding,
-                    font = "monospace", color = theColors[self.surrounding])
+                    font="georgia", color = theColors[self.surrounding])
 
     def update(self, pos, click, left):            # Left: 0 for left click, 1 for right click
         if self.upStatL:
