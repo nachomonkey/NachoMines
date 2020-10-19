@@ -1,6 +1,6 @@
 import setuptools, shutil, os, sys
 from nachomines import __version__
-from nachomines.scripts.fixPath import fixPath
+from nachomines.scripts.utils import fix_path
 
 if "install" in sys.argv and sys.platform == "linux":
     if os.path.exists("/usr/share/applications"):
@@ -13,6 +13,6 @@ if "install" in sys.argv and sys.platform == "linux":
 
 setuptools.setup(
     version=__version__,
-    package_data={"nachomines" : ["*.png", fixPath("resources/images/bitmap/*"), fixPath("resources/sounds/*")]},
+    package_data={"nachomines" : ["*.png", fix_path("resources/images/bitmap/*"), fix_path("resources/sounds/*")]},
     python_requires=">=3.6",
 )
