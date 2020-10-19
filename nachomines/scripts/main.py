@@ -5,31 +5,35 @@ import time
 import copy
 import random
 import os
-
-os.environ["SDL_VIDEO_WINDOW_POS"] = "0, 0"
-os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
-
 import pygame
-from nachomines.scripts.auto_load import AutoLoad
-from nachomines.scripts.Utils import *
-from nachomines.scripts.button import Drop_Down
-from nachomines import __version__
-from pkg_resources import resource_filename
-from pygame.mixer import Sound
 
 pygame.init()
+
+def get_square_display(w, h):
+    return (min(w, h), ) * 2 
+
+info = pygame.display.Info()
+margin = 50
+width, height = size = get_square_display(info.current_w - margin, info.current_h - margin)
+os.environ["SDL_VIDEO_WINDOW_POS"] = f"{info.current_w // 2 - width // 2}, {info.current_h // 2 - height // 2}"
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
+
+from nachomines.scripts.auto_load import AutoLoad
+from nachomines.scripts.get_file import get_file
+from nachomines.scripts.utils import *
+from nachomines.scripts.button import Drop_Down
+from nachomines import __version__
+from pygame.mixer import Sound
 
 gameName = "NachoMines"
 __author__ = "NachoMonkey"
 
 caption = f"{gameName}"
 
-margin = 50
-
 DefaultDisplaySize = (1080, 1080)
 
 def playSound(filename):
-    Sound(fixPath(resource_filename("nachomines", "resources/sounds/" + filename))).play()
+    Sound(fix_path(get_file("resources/sounds/" + filename))).play()
 
 def gray(v):
     return (v, v, v)
@@ -64,14 +68,8 @@ theColors = [0, (0, 0, 255),
         (255, 0, 255),
 ]
 
-FPS = 25
+FPS = 60
 Clock = pygame.time.Clock()
-
-def getSquareDisplay(w, h):
-    if w >= h:
-        return (h, h)
-    if h > w:
-        return (w, w)
 
 def getGridRects(w, h, blockSize):
     for y in range(h):
@@ -95,8 +93,6 @@ def getGridLines(w, h, blockSize):
         ends.append((w * blockSize, y))
     return list(zip(starts, ends))
 
-Info = pygame.display.Info()
-
 class Game:
     def __init__(self, again=False):
         self.won = False
@@ -107,12 +103,10 @@ class Game:
         self.mseg = None
         if again:
             return
-        self.width, self.height = self.size = getSquareDisplay(Info.current_w - margin,
-                Info.current_h - margin)
-        self.Display = pygame.display.set_mode(self.size, pygame.NOFRAME | pygame.HWACCEL)
+        self.Display = pygame.display.set_mode(size, pygame.NOFRAME | pygame.HWACCEL)
         pygame.display.set_caption(caption)
 
-        icon = pygame.image.load(resource_filename("nachomines", "icon.png"))
+        icon = pygame.image.load(get_file("icon.png"))
         pygame.display.set_icon(icon)
 
         self.Scaling = Scaling(self.Display.get_size(), DefaultDisplaySize)
@@ -124,11 +118,11 @@ class Game:
         self.old_images = self.Scaling.scale_images(loader.Start_AutoLoad())
         self.images = copy.copy(self.old_images)
 
-        self.subDropDown = Drop_Down(self.scale((self.width / 2 - 238, 600)), list(range(5, 19)),
+        self.subDropDown = Drop_Down(self.scale((width / 2 - 238, 600)), list(range(5, 19)),
                 self.Display, color2 = gray(100))
-        self.minesDropDown = Drop_Down(self.scale((self.width / 2 - 38, 600)), list(range(5, 76, 5)),
+        self.minesDropDown = Drop_Down(self.scale((width / 2 - 38, 600)), list(range(5, 76, 5)),
                 self.Display, color2 = gray(100))
-        self.themeDropDown = Drop_Down(self.scale((self.width / 2 + 162, 600)), ["Light", "Dark", "Nacho"],
+        self.themeDropDown = Drop_Down(self.scale((width / 2 + 162, 600)), ["Light", "Dark", "Nacho"],
                 self.Display, color2 = gray(100))
         self.subDropDown.set_status(10)
         self.minesDropDown.set_status(25)
@@ -250,23 +244,23 @@ class Game:
         self.minesDropDown.draw()
         self.themeDropDown.draw()
 
-        Adv_Fonts(self.subDropDown.rects[0].midtop,
+        render_text(self.subDropDown.rects[0].midtop,
         self.Display, self.scaleY(15), "Grid Subdivisions",
         color = (255, 255, 0), font="freesansbold", bold=True, anchor="midbottom")
         
-        Adv_Fonts(self.minesDropDown.rects[0].midtop,
+        render_text(self.minesDropDown.rects[0].midtop,
         self.Display, self.scaleY(15), "Mine Density",
         color = (255, 255, 0), font="freesansbold", bold=True, anchor="midbottom")
 
-        Adv_Fonts(self.themeDropDown.rects[0].midtop,
+        render_text(self.themeDropDown.rects[0].midtop,
         self.Display, self.scaleY(15), "Theme",
         color = (255, 255, 0), font="freesansbold", bold=True, anchor="midbottom")
 
-        Adv_Fonts((round(self.Display.get_width() * (9/10)), round(self.Display.get_height() * (9/10))),
+        render_text((round(self.Display.get_width() * (9/10)), round(self.Display.get_height() * (9/10))),
                 self.Display, self.scaleY(14), f"v{__version__}",
                 color=(255, 255, 255), font="monospace", anchor="bottomright")
 
-        Adv_Fonts((self.Display.get_width() // 2, self.Display.get_height() - self.scaleY(100)),
+        render_text((self.Display.get_width() // 2, self.Display.get_height() - self.scaleY(100)),
                 self.Display, self.scaleY(20), "Press <R> to restart",
                 color=(255, 255, 0), font="monospace", bold=True, shadow=True)
         pygame.display.update()
@@ -355,9 +349,9 @@ class Game:
                                 playSound("boom.wav")
                     if b.upStatR and self.started and self.flags < self.Mines:
                         if b.flagged:
-                            playSound("removeFlag.wav")
+                            playSound("remove_flag.wav")
                         if not b.flagged:
-                            playSound("addFlag.wav")
+                            playSound("add_flag.wav")
                         b.flagged = not b.flagged
                 if b.hasMine:
                     mines += 1
@@ -417,10 +411,10 @@ class Block:
             display.blit(self.mine, mr)
             self.dirty_rects.append(self.rect)
         if self.statusL == 3 and self.surrounding != 0 and not self.hasMine:
-            Adv_Fonts(self.rect.move(0, 2).center, display, self.rect.h, self.surrounding,
+            render_text(self.rect.move(0, 2).center, display, round(self.rect.h * .6), self.surrounding,
                     font="georgia", color=(0, 0, 0))
-            Adv_Fonts(self.rect.center, display, self.rect.h, self.surrounding,
-                    font="georgia", color = theColors[self.surrounding])
+            render_text(self.rect.center, display, round(self.rect.h * .6), self.surrounding,
+                    font="georgia", color=theColors[self.surrounding])
 
     def update(self, pos, click, left):            # Left: 0 for left click, 1 for right click
         if self.upStatL:

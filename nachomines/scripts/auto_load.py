@@ -1,11 +1,11 @@
 import os
 import pygame
-from nachomines.scripts.Utils import green, endC, fixPath
-from pkg_resources import resource_filename
+from nachomines.scripts.utils import green, endC, fix_path
+from nachomines.scripts.get_file import get_file
 
 pygame.init()
 
-path = resource_filename("nachomines", fixPath("resources/images/bitmap/"))
+path = get_file("resources/images/bitmap/")
 
 class AutoLoad:
     def __init__(self):

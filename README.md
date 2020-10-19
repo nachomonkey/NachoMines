@@ -27,6 +27,12 @@ The **setup.py** script installs the "nachomines" python module, a "nachomines" 
 python3 -m nachomines
 ```
 
+**or if you cloned the repository, run:**
+
+```bash
+python3 run_game.py
+```
+
 On linux, an application by the name "NachoMines" should be found in the "Games" section of your application menu
 
 ## Gameplay and Controls
