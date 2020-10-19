@@ -1,6 +1,6 @@
-import pygame
 import sys
 import os
+import pygame
 
 pygame.init()
 
@@ -20,7 +20,7 @@ if sys.platform != "linux":
 def reverseDict(D):
     return dict(zip(D.values(), D.keys()))
 
-def fixPath(path):
+def fix_path(path):
     return path.replace("/", os.sep)
 
 def fixTime(t):
@@ -69,7 +69,7 @@ MAX_FONTS = 30
 def font_checksum(size, font, italic, bold, underline):
     return str(size) + font + str(italic) + str(bold) + str(underline)
 
-def Adv_Fonts(pos, display, size, text, font="Sans", color=(0, 0, 0),  italic=False, bold=False, AA=True, underline=False, anchor="center", render=True, shadow=False, shadowDistance=2):
+def render_text(pos, display, size, text, font="Sans", color=(0, 0, 0),  italic=False, bold=False, AA=True, underline=False, anchor="center", render=True, shadow=False, shadowDistance=2):
     if len(FONT_CACHE) > MAX_FONTS:
         FONT_CACHE.clear()
     font = font.lower()

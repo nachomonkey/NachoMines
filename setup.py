@@ -2,7 +2,7 @@ import setuptools, shutil, os, sys
 from nachomines import __version__
 from nachomines.scripts.fixPath import fixPath
 
-if sys.platform == "linux":
+if "install" in sys.argv and sys.platform == "linux":
     if os.path.exists("/usr/share/applications"):
         shutil.copy(
             "nachomines/nachomines.desktop",
