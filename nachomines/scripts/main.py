@@ -15,7 +15,7 @@ def get_square_display(w, h):
 info = pygame.display.Info()
 margin = 50
 width, height = size = get_square_display(info.current_w - margin, info.current_h - margin)
-os.environ["SDL_VIDEO_WINDOW_POS"] = f"{info.current_w // 2 - width // 2}, {info.current_h // 2 - height // 2}"
+os.environ["SDL_VIDEO_WINDOW_POS"] = f"{info.current_w // 2 - width // 2}, 0"
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 
 from nachomines.scripts.auto_load import AutoLoad
@@ -103,11 +103,10 @@ class Game:
         self.mseg = None
         if again:
             return
-        self.Display = pygame.display.set_mode(size, pygame.NOFRAME | pygame.HWACCEL)
-        pygame.display.set_caption(caption)
-
         icon = pygame.image.load(get_file("icon.png"))
         pygame.display.set_icon(icon)
+        self.Display = pygame.display.set_mode(size, pygame.HWACCEL)
+        pygame.display.set_caption(caption)
 
         self.Scaling = Scaling(self.Display.get_size(), DefaultDisplaySize)
         self.scale = self.Scaling.scale_pos

@@ -1,9 +1,9 @@
 # NachoMines
-*A simple python-made minesweeper game using pygame*
+*A python minesweeper game using pygame*
+
 ## Requires
 * Python 3.6 or greater
 * pygame
-* Monospace font (recommended)
 
 ## Installation
 
