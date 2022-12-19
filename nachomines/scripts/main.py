@@ -7,6 +7,8 @@ import random
 import os
 import pygame
 
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
+
 pygame.init()
 
 def get_square_display(w, h):
@@ -16,7 +18,6 @@ info = pygame.display.Info()
 margin = 50
 width, height = size = get_square_display(info.current_w - margin, info.current_h - margin)
 os.environ["SDL_VIDEO_WINDOW_POS"] = f"{info.current_w // 2 - width // 2}, 0"
-os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 
 from nachomines.scripts.auto_load import AutoLoad
 from nachomines.scripts.get_file import get_file
@@ -411,7 +412,7 @@ class Block:
             self.dirty_rects.append(self.rect)
         if self.statusL == 3 and self.surrounding != 0 and not self.hasMine:
             render_text(self.rect.move(0, 2).center, display, round(self.rect.h * .6), self.surrounding,
-                    font="georgia", color=(0, 0, 0))
+                    font="georgia", color=(50, 50, 50))
             render_text(self.rect.center, display, round(self.rect.h * .6), self.surrounding,
                     font="georgia", color=theColors[self.surrounding])
 
